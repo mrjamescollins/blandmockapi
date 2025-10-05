@@ -1,3 +1,5 @@
+// +build !lambda
+
 package main
 
 import (
@@ -109,11 +111,5 @@ func runServer() {
 }
 
 func runLambda() {
-	// Import Lambda dependencies only when needed
-	// This keeps the binary smaller for non-Lambda deployments
-	log.Println("Running in AWS Lambda mode...")
-
-	// We'll add Lambda support in a separate file to keep this clean
-	// For now, direct users to build with lambda tag
 	log.Fatal("Lambda mode requires building with -tags lambda. See README for details.")
 }

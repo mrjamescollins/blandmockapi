@@ -13,6 +13,10 @@ import (
 	"github.com/jimbo/blandmockapi/internal/router"
 )
 
+func main() {
+	runLambda()
+}
+
 func runLambda() {
 	log.Println("Initializing Lambda handler...")
 

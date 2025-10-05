@@ -16,14 +16,28 @@ import (
 const (
 	baseURL    = "http://localhost:8080"
 	serverWait = 2 * time.Second
+	binaryPath = "../../bin/test-server"
 )
 
 var serverCmd *exec.Cmd
 
 // TestMain sets up and tears down the test server
 func TestMain(m *testing.M) {
-	// Start the server
-	serverCmd = exec.Command("go", "run", "../../cmd/server", "-config", "../../examples")
+	// Build the server binary first
+	fmt.Println("Building server binary for integration tests...")
+	buildCmd := exec.Command("go", "build", "-o", binaryPath, "../../cmd/server")
+	buildCmd.Stdout = os.Stdout
+	buildCmd.Stderr = os.Stderr
+	if err := buildCmd.Run(); err != nil {
+		fmt.Printf("Failed to build server: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Ensure binary is cleaned up after tests
+	defer os.Remove(binaryPath)
+
+	// Start the server using the built binary
+	serverCmd = exec.Command(binaryPath, "-config", "../../examples")
 	serverCmd.Stdout = os.Stdout
 	serverCmd.Stderr = os.Stderr
 
@@ -36,7 +50,7 @@ func TestMain(m *testing.M) {
 	time.Sleep(serverWait)
 
 	if !isServerReady() {
-		serverCmd.Process.Kill()
+		shutdownServer()
 		fmt.Println("Server failed to become ready")
 		os.Exit(1)
 	}
@@ -44,12 +58,34 @@ func TestMain(m *testing.M) {
 	// Run tests
 	code := m.Run()
 
-	// Shutdown server
-	if serverCmd.Process != nil {
-		serverCmd.Process.Kill()
-	}
+	// Shutdown server gracefully
+	shutdownServer()
 
 	os.Exit(code)
+}
+
+func shutdownServer() {
+	if serverCmd == nil || serverCmd.Process == nil {
+		return
+	}
+
+	// Send interrupt signal to the server for graceful shutdown
+	serverCmd.Process.Signal(os.Interrupt)
+
+	// Wait for server to shutdown gracefully with timeout
+	done := make(chan error, 1)
+	go func() {
+		done <- serverCmd.Wait()
+	}()
+
+	select {
+	case <-done:
+		// Server exited gracefully
+	case <-time.After(5 * time.Second):
+		// Timeout - force kill
+		serverCmd.Process.Kill()
+		serverCmd.Wait() // Reap the process
+	}
 }
 
 func isServerReady() bool {
