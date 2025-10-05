@@ -1,3 +1,4 @@
+//go:build integration
 // +build integration
 
 package integration
@@ -17,14 +18,28 @@ import (
 const (
 	baseURL    = "http://localhost:8080"
 	serverWait = 2 * time.Second
+	binaryPath = "../../bin/test-server"
 )
 
 var serverCmd *exec.Cmd
 
 // TestMain sets up and tears down the test server
 func TestMain(m *testing.M) {
-	// Start the server
-	serverCmd = exec.Command("go", "run", "../../cmd/server", "-config", "../../examples")
+	// Build the server binary first
+	fmt.Println("Building server binary for integration tests...")
+	buildCmd := exec.Command("go", "build", "-o", binaryPath, "../../cmd/server")
+	buildCmd.Stdout = os.Stdout
+	buildCmd.Stderr = os.Stderr
+	if err := buildCmd.Run(); err != nil {
+		fmt.Printf("Failed to build server: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Ensure binary is cleaned up after tests
+	defer os.Remove(binaryPath)
+
+	// Start the server using the built binary
+	serverCmd = exec.Command(binaryPath, "-config", "../../examples")
 	serverCmd.Stdout = os.Stdout
 	serverCmd.Stderr = os.Stderr
 

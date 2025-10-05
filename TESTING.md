@@ -168,7 +168,7 @@ open coverage.html
 Add to your README:
 
 ```markdown
-[![Coverage](https://img.shields.io/codecov/c/github/yourusername/blandmockapi)](https://codecov.io/gh/yourusername/blandmockapi)
+[![Coverage](https://img.shields.io/codecov/c/github/mrjamescollins/blandmockapi)](https://codecov.io/gh/mrjamescollins/blandmockapi)
 ```
 
 ## CI/CD Integration

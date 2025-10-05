@@ -211,9 +211,11 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusMethodNotAllowed)
-		json.NewEncoder(w).Encode(map[string]string{
+		if err := json.NewEncoder(w).Encode(map[string]string{
 			"error": "GraphQL endpoint only accepts POST requests",
-		})
+		}); err != nil {
+			log.Printf("Failed to encode error response: %v", err)
+		}
 		return
 	}
 
@@ -227,9 +229,11 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{
+		if encErr := json.NewEncoder(w).Encode(map[string]string{
 			"error": fmt.Sprintf("invalid request body: %v", err),
-		})
+		}); encErr != nil {
+			log.Printf("Failed to encode error response: %v", encErr)
+		}
 		return
 	}
 
@@ -248,5 +252,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// Return the result
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(result)
+	if err := json.NewEncoder(w).Encode(result); err != nil {
+		log.Printf("Failed to encode GraphQL response: %v", err)
+	}
 }

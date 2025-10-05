@@ -85,7 +85,9 @@ func (rt *Router) multiMethodHandler(path string) http.HandlerFunc {
 			w.Header().Set("Content-Type", "application/json")
 			w.Header().Set("Allow", strings.Join(allowed, ", "))
 			w.WriteHeader(http.StatusMethodNotAllowed)
-			w.Write([]byte(fmt.Sprintf(`{"error":"method not allowed","allowed":%q,"received":"%s"}`, allowed, r.Method)))
+			if _, err := fmt.Fprintf(w, `{"error":"method not allowed","allowed":%q,"received":"%s"}`, allowed, r.Method); err != nil {
+				log.Printf("Failed to write method not allowed response: %v", err)
+			}
 			return
 		}
 
