@@ -1,0 +1,8 @@
+github.com/BurntSushi/toml v1.5.0 h1:W5quZX/G/csjUnuI8SUYlsHs9M38FC7znL0lIO+DvMg=
+github.com/BurntSushi/toml v1.5.0/go.mod h1:ukJfTF/6rtPPRCnwkur4qwRxa8vTRFBF0uk2lLoLwho=
+github.com/aws/aws-lambda-go v1.49.0 h1:z4VhTqkFZPM3xpEtTqWqRqsRH4TZBMJqTkRiBPYLqIQ=
+github.com/aws/aws-lambda-go v1.49.0/go.mod h1:dpMpZgvWx5vuQJfBt0zqBha60q7Dd7RfgJv23DymV8A=
+github.com/awslabs/aws-lambda-go-api-proxy v0.16.2 h1:CJyGEyO1CIwOnXTU40urf0mchf6t3voxpvUDikOU9LY=
+github.com/awslabs/aws-lambda-go-api-proxy v0.16.2/go.mod h1:vxxjwBHe/KbgFeNlAP/Tvp4SsVRL3WQamcWRxqVh0z0=
+github.com/graphql-go/graphql v0.8.1 h1:p7/Ou/WpmulocJeEx7wjQy611rtXGQaAcXGqanuMMgc=
+github.com/graphql-go/graphql v0.8.1/go.mod h1:nKiHzRM0qopJEwCITUuIsxk9PlVlwIiiI8pnJEhordQ=

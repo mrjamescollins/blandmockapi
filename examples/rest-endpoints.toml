@@ -1,0 +1,221 @@
+# Server configuration
+[server]
+port = 8080
+host = "0.0.0.0"
+read_timeout = 15
+write_timeout = 15
+
+# REST API Endpoints
+# Simple GET endpoint
+[[endpoints]]
+path = "/api/users"
+method = "GET"
+status = 200
+description = "List all users"
+response = '''
+{
+  "users": [
+    {"id": 1, "name": "Alice Johnson", "email": "alice@example.com"},
+    {"id": 2, "name": "Bob Smith", "email": "bob@example.com"},
+    {"id": 3, "name": "Charlie Brown", "email": "charlie@example.com"}
+  ],
+  "total": 3
+}
+'''
+
+[endpoints.headers]
+Content-Type = "application/json"
+X-API-Version = "1.0"
+
+# GET endpoint with path parameter example
+[[endpoints]]
+path = "/api/users/1"
+method = "GET"
+status = 200
+description = "Get user by ID"
+response = '''
+{
+  "id": 1,
+  "name": "Alice Johnson",
+  "email": "alice@example.com",
+  "role": "admin",
+  "created_at": "2024-01-15T10:30:00Z"
+}
+'''
+
+[endpoints.headers]
+Content-Type = "application/json"
+
+# POST endpoint
+[[endpoints]]
+path = "/api/users"
+method = "POST"
+status = 201
+description = "Create a new user"
+response = '''
+{
+  "id": 4,
+  "name": "New User",
+  "email": "newuser@example.com",
+  "message": "User created successfully"
+}
+'''
+
+[endpoints.headers]
+Content-Type = "application/json"
+Location = "/api/users/4"
+
+# PUT endpoint
+[[endpoints]]
+path = "/api/users/1"
+method = "PUT"
+status = 200
+description = "Update user"
+response = '''
+{
+  "id": 1,
+  "name": "Alice Johnson",
+  "email": "alice@example.com",
+  "message": "User updated successfully"
+}
+'''
+
+[endpoints.headers]
+Content-Type = "application/json"
+
+# DELETE endpoint
+[[endpoints]]
+path = "/api/users/1"
+method = "DELETE"
+status = 204
+description = "Delete user"
+response = ""
+
+# Error response example
+[[endpoints]]
+path = "/api/error"
+method = "GET"
+status = 500
+description = "Simulate server error"
+response = '''
+{
+  "error": "Internal Server Error",
+  "message": "Something went wrong",
+  "code": "ERR_INTERNAL"
+}
+'''
+
+[endpoints.headers]
+Content-Type = "application/json"
+
+# Endpoint with delay for testing timeouts
+[[endpoints]]
+path = "/api/slow"
+method = "GET"
+status = 200
+delay = 3000
+description = "Slow endpoint with 3 second delay"
+response = '''
+{
+  "message": "This response was delayed by 3 seconds"
+}
+'''
+
+[endpoints.headers]
+Content-Type = "application/json"
+
+# Product listing endpoint
+[[endpoints]]
+path = "/api/products"
+method = "GET"
+status = 200
+description = "List all products"
+response = '''
+{
+  "products": [
+    {
+      "id": 101,
+      "name": "Laptop",
+      "price": 999.99,
+      "category": "Electronics",
+      "in_stock": true
+    },
+    {
+      "id": 102,
+      "name": "Mouse",
+      "price": 29.99,
+      "category": "Electronics",
+      "in_stock": true
+    },
+    {
+      "id": 103,
+      "name": "Keyboard",
+      "price": 79.99,
+      "category": "Electronics",
+      "in_stock": false
+    }
+  ],
+  "total": 3,
+  "page": 1,
+  "per_page": 10
+}
+'''
+
+[endpoints.headers]
+Content-Type = "application/json"
+
+# Authentication endpoint example
+[[endpoints]]
+path = "/api/auth/login"
+method = "POST"
+status = 200
+description = "User login"
+response = '''
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "id": 1,
+    "name": "Alice Johnson",
+    "email": "alice@example.com"
+  },
+  "expires_in": 3600
+}
+'''
+
+[endpoints.headers]
+Content-Type = "application/json"
+
+# 404 Not Found example
+[[endpoints]]
+path = "/api/notfound"
+method = "GET"
+status = 404
+description = "Resource not found"
+response = '''
+{
+  "error": "Not Found",
+  "message": "The requested resource was not found",
+  "code": "ERR_NOT_FOUND"
+}
+'''
+
+[endpoints.headers]
+Content-Type = "application/json"
+
+# Unauthorized example
+[[endpoints]]
+path = "/api/protected"
+method = "GET"
+status = 401
+description = "Unauthorized access"
+response = '''
+{
+  "error": "Unauthorized",
+  "message": "Authentication required",
+  "code": "ERR_UNAUTHORIZED"
+}
+'''
+
+[endpoints.headers]
+Content-Type = "application/json"
+WWW-Authenticate = "Bearer"

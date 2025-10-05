@@ -1,0 +1,19 @@
+# Test configuration for integration tests
+[server]
+port = 8888
+host = "localhost"
+
+[[endpoints]]
+path = "/test/hello"
+method = "GET"
+status = 200
+response = '{"message": "Hello from test config"}'
+
+[[endpoints]]
+path = "/test/echo"
+method = "POST"
+status = 200
+response = '{"echo": "{{body}}"}'
+
+[endpoints.headers]
+Content-Type = "application/json"

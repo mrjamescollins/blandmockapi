@@ -1,0 +1,38 @@
+# Dockerfile for AWS Lambda deployment
+FROM golang:1.25-alpine AS builder
+
+# Install build dependencies
+RUN apk add --no-cache git ca-certificates
+
+WORKDIR /build
+
+# Copy go mod files
+COPY go.mod go.sum ./
+
+# Download dependencies
+RUN go mod download
+
+# Copy source code
+COPY . .
+
+# Build for Lambda with the lambda build tag
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
+    -tags lambda \
+    -ldflags="-w -s" \
+    -o bootstrap \
+    ./cmd/server
+
+# Lambda runtime image
+FROM public.ecr.aws/lambda/provided:al2023
+
+# Copy binary (Lambda expects the binary to be named 'bootstrap')
+COPY --from=builder /build/bootstrap ${LAMBDA_RUNTIME_DIR}/bootstrap
+
+# Copy configuration files
+COPY examples ${LAMBDA_TASK_ROOT}/config
+
+# Set the config path for Lambda
+ENV CONFIG_PATH=${LAMBDA_TASK_ROOT}/config
+
+# Lambda will call the handler
+CMD [ "bootstrap" ]

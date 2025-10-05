@@ -1,0 +1,243 @@
+# GraphQL Configuration
+[graphql]
+enabled = true
+path = "/graphql"
+
+# Define GraphQL Types
+[[graphql.types]]
+name = "User"
+description = "A user in the system"
+
+[graphql.types.fields]
+id = "Int!"
+name = "String!"
+email = "String!"
+age = "Int"
+active = "Boolean!"
+
+[[graphql.types]]
+name = "Product"
+description = "A product in the catalog"
+
+[graphql.types.fields]
+id = "Int!"
+name = "String!"
+price = "Float!"
+category = "String"
+inStock = "Boolean!"
+
+[[graphql.types]]
+name = "Post"
+description = "A blog post"
+
+[graphql.types.fields]
+id = "Int!"
+title = "String!"
+content = "String!"
+authorId = "Int!"
+published = "Boolean!"
+
+# Define GraphQL Queries
+[[graphql.queries]]
+name = "user"
+description = "Get a user by ID"
+return_type = "User"
+response = '''
+{
+  "id": 1,
+  "name": "Alice Johnson",
+  "email": "alice@example.com",
+  "age": 30,
+  "active": true
+}
+'''
+
+[graphql.queries.args]
+id = "Int!"
+
+[[graphql.queries]]
+name = "users"
+description = "Get all users"
+return_type = "[User]"
+response = '''
+[
+  {
+    "id": 1,
+    "name": "Alice Johnson",
+    "email": "alice@example.com",
+    "age": 30,
+    "active": true
+  },
+  {
+    "id": 2,
+    "name": "Bob Smith",
+    "email": "bob@example.com",
+    "age": 25,
+    "active": true
+  },
+  {
+    "id": 3,
+    "name": "Charlie Brown",
+    "email": "charlie@example.com",
+    "age": 35,
+    "active": false
+  }
+]
+'''
+
+[[graphql.queries]]
+name = "product"
+description = "Get a product by ID"
+return_type = "Product"
+response = '''
+{
+  "id": 101,
+  "name": "Laptop",
+  "price": 999.99,
+  "category": "Electronics",
+  "inStock": true
+}
+'''
+
+[graphql.queries.args]
+id = "Int!"
+
+[[graphql.queries]]
+name = "products"
+description = "Get all products"
+return_type = "[Product]"
+response = '''
+[
+  {
+    "id": 101,
+    "name": "Laptop",
+    "price": 999.99,
+    "category": "Electronics",
+    "inStock": true
+  },
+  {
+    "id": 102,
+    "name": "Mouse",
+    "price": 29.99,
+    "category": "Electronics",
+    "inStock": true
+  },
+  {
+    "id": 103,
+    "name": "Keyboard",
+    "price": 79.99,
+    "category": "Electronics",
+    "inStock": false
+  }
+]
+'''
+
+[[graphql.queries]]
+name = "posts"
+description = "Get all blog posts"
+return_type = "[Post]"
+response = '''
+[
+  {
+    "id": 1,
+    "title": "Introduction to GraphQL",
+    "content": "GraphQL is a query language for APIs...",
+    "authorId": 1,
+    "published": true
+  },
+  {
+    "id": 2,
+    "title": "Building Mock APIs",
+    "content": "Mock APIs are useful for development...",
+    "authorId": 2,
+    "published": true
+  }
+]
+'''
+
+# Define GraphQL Mutations
+[[graphql.mutations]]
+name = "createUser"
+description = "Create a new user"
+return_type = "User"
+response = '''
+{
+  "id": 4,
+  "name": "New User",
+  "email": "newuser@example.com",
+  "age": 28,
+  "active": true
+}
+'''
+
+[graphql.mutations.args]
+name = "String!"
+email = "String!"
+age = "Int"
+
+[[graphql.mutations]]
+name = "updateUser"
+description = "Update an existing user"
+return_type = "User"
+response = '''
+{
+  "id": 1,
+  "name": "Alice Johnson Updated",
+  "email": "alice.updated@example.com",
+  "age": 31,
+  "active": true
+}
+'''
+
+[graphql.mutations.args]
+id = "Int!"
+name = "String"
+email = "String"
+age = "Int"
+
+[[graphql.mutations]]
+name = "deleteUser"
+description = "Delete a user"
+return_type = "Boolean"
+response = "true"
+
+[graphql.mutations.args]
+id = "Int!"
+
+[[graphql.mutations]]
+name = "createProduct"
+description = "Create a new product"
+return_type = "Product"
+response = '''
+{
+  "id": 104,
+  "name": "Webcam",
+  "price": 149.99,
+  "category": "Electronics",
+  "inStock": true
+}
+'''
+
+[graphql.mutations.args]
+name = "String!"
+price = "Float!"
+category = "String"
+
+[[graphql.mutations]]
+name = "createPost"
+description = "Create a new blog post"
+return_type = "Post"
+response = '''
+{
+  "id": 3,
+  "title": "New Post Title",
+  "content": "This is the content of the new post",
+  "authorId": 1,
+  "published": false
+}
+'''
+
+[graphql.mutations.args]
+title = "String!"
+content = "String!"
+authorId = "Int!"
