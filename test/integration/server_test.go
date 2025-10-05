@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"syscall"
 	"testing"
 	"time"
 )
@@ -36,7 +37,7 @@ func TestMain(m *testing.M) {
 	time.Sleep(serverWait)
 
 	if !isServerReady() {
-		serverCmd.Process.Kill()
+		shutdownServer()
 		fmt.Println("Server failed to become ready")
 		os.Exit(1)
 	}
@@ -44,12 +45,56 @@ func TestMain(m *testing.M) {
 	// Run tests
 	code := m.Run()
 
-	// Shutdown server
-	if serverCmd.Process != nil {
-		serverCmd.Process.Kill()
-	}
+	// Shutdown server gracefully
+	shutdownServer()
 
 	os.Exit(code)
+}
+
+func shutdownServer() {
+	if serverCmd == nil || serverCmd.Process == nil {
+		return
+	}
+
+	// Send interrupt signal to process group to ensure all child processes receive it
+	// For go run, this ensures both the wrapper and actual server process get the signal
+	pgid, err := syscall.Getpgid(serverCmd.Process.Pid)
+	if err == nil {
+		// Send signal to process group
+		syscall.Kill(-pgid, syscall.SIGINT)
+	} else {
+		// Fallback to sending to just the process
+		serverCmd.Process.Signal(os.Interrupt)
+	}
+
+	// Wait for server to shutdown gracefully with timeout
+	done := make(chan error, 1)
+	go func() {
+		done <- serverCmd.Wait()
+	}()
+
+	select {
+	case err := <-done:
+		// Server exited - ignore exit errors from interrupt signal
+		if err != nil {
+			// Check if it's just an interrupt signal exit
+			if exitErr, ok := err.(*exec.ExitError); ok {
+				// Exit code -1 or signal interrupt is expected
+				if exitErr.ProcessState.ExitCode() == -1 {
+					// This is normal for interrupted process
+					return
+				}
+			}
+		}
+	case <-time.After(5 * time.Second):
+		// Timeout - force kill the process group
+		if pgid, err := syscall.Getpgid(serverCmd.Process.Pid); err == nil {
+			syscall.Kill(-pgid, syscall.SIGKILL)
+		} else {
+			serverCmd.Process.Kill()
+		}
+		serverCmd.Wait() // Reap the process
+	}
 }
 
 func isServerReady() bool {
