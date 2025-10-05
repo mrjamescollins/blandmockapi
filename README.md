@@ -21,6 +21,47 @@ A lightweight, production-ready, configurable mock REST and GraphQL API server b
 - **AWS CDK Infrastructure** - TypeScript CDK stacks for Lambda, ECS, and App Runner
 - **TeamCity Integration** - Pre-configured Kotlin DSL build configurations
 
+## Branching Strategy
+
+This project uses a two-branch workflow:
+
+### Branches
+
+- **`main`** - Production-ready code. Protected branch, requires PR approval.
+- **`dev`** - Active development branch. All feature branches merge here first.
+
+### Workflow
+
+1. **Feature Development**
+   ```bash
+   git checkout dev
+   git checkout -b feature/your-feature
+   # Make changes, commit
+   git push origin feature/your-feature
+   # Create PR to dev branch
+   ```
+
+2. **Release to Production**
+   ```bash
+   # After testing in dev
+   git checkout main
+   git merge dev
+   git push origin main
+   # Triggers production deployment
+   ```
+
+### CI/CD Integration
+
+**GitHub Actions:**
+- Runs on all PRs to `dev` and `main`
+- `dev` branch: Runs tests, builds artifacts
+- `main` branch: Runs tests, builds, deploys to production (if configured)
+
+**TeamCity:**
+- Configure VCS trigger for `dev` branch: Run tests and deploy to staging
+- Configure VCS trigger for `main` branch: Run tests and deploy to production
+- Branch specification: `+:refs/heads/(dev|main)`
+
 ## Quick Start
 
 ### Prerequisites

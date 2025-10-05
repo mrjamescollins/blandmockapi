@@ -47,7 +47,10 @@ object UnitTests : BuildType({
 
     triggers {
         vcs {
-            branchFilter = "+:*"
+            branchFilter = """
+                +:main
+                +:dev
+            """.trimIndent()
         }
     }
 
@@ -89,7 +92,10 @@ object IntegrationTests : BuildType({
 
     triggers {
         vcs {
-            branchFilter = "+:main"
+            branchFilter = """
+                +:main
+                +:dev
+            """.trimIndent()
         }
     }
 })
