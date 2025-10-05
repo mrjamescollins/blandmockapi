@@ -130,7 +130,9 @@ func TestRouterHandler_Success(t *testing.T) {
 		},
 	}
 
-	router.RegisterEndpoint(endpoint)
+	if err := router.RegisterEndpoint(endpoint); err != nil {
+		t.Fatalf("Failed to register endpoint: %v", err)
+	}
 
 	req := httptest.NewRequest("GET", "/test", nil)
 	w := httptest.NewRecorder()
@@ -178,7 +180,9 @@ func TestRouterHandler_MethodNotAllowed(t *testing.T) {
 		Response: "{}",
 	}
 
-	router.RegisterEndpoint(endpoint)
+	if err := router.RegisterEndpoint(endpoint); err != nil {
+		t.Fatalf("Failed to register endpoint: %v", err)
+	}
 
 	req := httptest.NewRequest("POST", "/test", nil)
 	w := httptest.NewRecorder()
@@ -244,7 +248,9 @@ func TestGetEndpoints(t *testing.T) {
 	}
 
 	for _, ep := range endpoints {
-		router.RegisterEndpoint(ep)
+		if err := router.RegisterEndpoint(ep); err != nil {
+			t.Fatalf("Failed to register endpoint: %v", err)
+		}
 	}
 
 	retrieved := router.GetEndpoints()

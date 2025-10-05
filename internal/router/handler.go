@@ -42,7 +42,9 @@ func Handler(endpoint models.EndpointConfig) http.HandlerFunc {
 
 		// Process and write response
 		response := processResponse(endpoint.Response, r)
-		w.Write([]byte(response))
+		if _, err := w.Write([]byte(response)); err != nil {
+			log.Printf("Failed to write response: %v", err)
+		}
 	}
 }
 
@@ -82,7 +84,9 @@ func HealthHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"status":"healthy","service":"blandmockapi"}`))
+		if _, err := w.Write([]byte(`{"status":"healthy","service":"blandmockapi"}`)); err != nil {
+			log.Printf("Failed to write health response: %v", err)
+		}
 	}
 }
 
@@ -93,6 +97,8 @@ func NotFoundHandler() http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusNotFound)
 		response := fmt.Sprintf(`{"error":"endpoint not found","path":"%s","method":"%s"}`, r.URL.Path, r.Method)
-		w.Write([]byte(response))
+		if _, err := w.Write([]byte(response)); err != nil {
+			log.Printf("Failed to write 404 response: %v", err)
+		}
 	}
 }
