@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/yourusername/blandmockapi/actions/workflows/ci.yml/badge.svg)](https://github.com/yourusername/blandmockapi/actions/workflows/ci.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/yourusername/blandmockapi)](https://goreportcard.com/report/github.com/yourusername/blandmockapi)
-[![Coverage](https://codecov.io/gh/yourusername/blandmockapi/branch/main/graph/badge.svg)](https://codecov.io/gh/yourusername/blandmockapi)
+[![codecov](https://codecov.io/github/mrjamescollins/blandmockapi/graph/badge.svg?token=34DCP8J203)](https://codecov.io/github/mrjamescollins/blandmockapi)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A lightweight, production-ready, configurable mock REST and GraphQL API server built with Go. Perfect for development, testing, and prototyping.
