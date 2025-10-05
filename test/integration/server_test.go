@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-	"syscall"
 	"testing"
 	"time"
 )
@@ -17,14 +16,28 @@ import (
 const (
 	baseURL    = "http://localhost:8080"
 	serverWait = 2 * time.Second
+	binaryPath = "../../bin/test-server"
 )
 
 var serverCmd *exec.Cmd
 
 // TestMain sets up and tears down the test server
 func TestMain(m *testing.M) {
-	// Start the server
-	serverCmd = exec.Command("go", "run", "../../cmd/server", "-config", "../../examples")
+	// Build the server binary first
+	fmt.Println("Building server binary for integration tests...")
+	buildCmd := exec.Command("go", "build", "-o", binaryPath, "../../cmd/server")
+	buildCmd.Stdout = os.Stdout
+	buildCmd.Stderr = os.Stderr
+	if err := buildCmd.Run(); err != nil {
+		fmt.Printf("Failed to build server: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Ensure binary is cleaned up after tests
+	defer os.Remove(binaryPath)
+
+	// Start the server using the built binary
+	serverCmd = exec.Command(binaryPath, "-config", "../../examples")
 	serverCmd.Stdout = os.Stdout
 	serverCmd.Stderr = os.Stderr
 
@@ -56,16 +69,8 @@ func shutdownServer() {
 		return
 	}
 
-	// Send interrupt signal to process group to ensure all child processes receive it
-	// For go run, this ensures both the wrapper and actual server process get the signal
-	pgid, err := syscall.Getpgid(serverCmd.Process.Pid)
-	if err == nil {
-		// Send signal to process group
-		syscall.Kill(-pgid, syscall.SIGINT)
-	} else {
-		// Fallback to sending to just the process
-		serverCmd.Process.Signal(os.Interrupt)
-	}
+	// Send interrupt signal to the server for graceful shutdown
+	serverCmd.Process.Signal(os.Interrupt)
 
 	// Wait for server to shutdown gracefully with timeout
 	done := make(chan error, 1)
@@ -74,25 +79,11 @@ func shutdownServer() {
 	}()
 
 	select {
-	case err := <-done:
-		// Server exited - ignore exit errors from interrupt signal
-		if err != nil {
-			// Check if it's just an interrupt signal exit
-			if exitErr, ok := err.(*exec.ExitError); ok {
-				// Exit code -1 or signal interrupt is expected
-				if exitErr.ProcessState.ExitCode() == -1 {
-					// This is normal for interrupted process
-					return
-				}
-			}
-		}
+	case <-done:
+		// Server exited gracefully
 	case <-time.After(5 * time.Second):
-		// Timeout - force kill the process group
-		if pgid, err := syscall.Getpgid(serverCmd.Process.Pid); err == nil {
-			syscall.Kill(-pgid, syscall.SIGKILL)
-		} else {
-			serverCmd.Process.Kill()
-		}
+		// Timeout - force kill
+		serverCmd.Process.Kill()
 		serverCmd.Wait() // Reap the process
 	}
 }
